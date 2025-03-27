@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invitación de Boda</title>
+    <script src="https://cdn.jsdelivr.net/npm/qr-code-styling/lib/qr-code-styling.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital@1&family=Dancing+Script:wght@400;700&family=Petit+Formal+Script&display=swap" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+  </head>
+  <style>
+    :root {
+    --color-fondo: linear-gradient(to bottom, #eae4e9, #ffe8f0);    
+    --color-invitacion: #ffffff;
+    --color-boton: #b08968; /* Marrón suave */
+    --color-boton-hover: #7f5539; /* Marrón oscuro */
+    --color-acento: #6d6875; /* Lavanda oscuro */
+    --color-texto: #3e3e3e; /* Gris oscuro */
+    --color-titulo: #9c6644; /* Cobre oscuro */
+    --color-secundario: #a07e6a; /* Beige cálido */
+    --color-frase-fondo: rgba(176, 137, 104, 0.3); /* Transparencia sutil */
+    --color-versiculo: #fd5f97;
+}
+
+/* 🔷 Estilos generales */
+body {
+    font-family: 'Poppins', sans-serif;
+    background: var(--color-fondo);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    color: var(--color-texto);
+}
+
+/* 🔷 Tarjeta de invitación */
+.qr-invitacion {
+    background: var(--color-invitacion);
+    padding: 30px;
+    max-width: 600px;
+    width: 100%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    border-radius: 15px;
+    text-align: center;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* 🔷 Encabezado */
+header {
+    text-align: center;
+    border-bottom: 2px solid var(--color-acento);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 36px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: var(--color-texto);
+    margin: 10px 0;
+    font-family: "Dancing Script", cursive;
+}
+
+/* 🔷 Fecha */
+.fecha {
+    font-style: italic;
+    color: var(--color-versiculo);
+    font-weight: bold;
+}
+
+/* 🔷 Frase especial */
+.frase {
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--color-titulo);
+    background: var(--color-frase-fondo);
+    padding: 12px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+/* 🔷 Sección QR */
+.qr-seccion {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.qr-seccion h2 {
+    font-family: "Playfair Display", serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--color-texto);
+}
+
+.linea {
+    width: 100px;
+    height: 2px;
+    background: var(--color-acento);
+    margin: 10px auto;
+}
+
+/* 🔷 QR Container */
+.qr-container {
+    background: var(--color-invitacion);
+    padding: 15px;
+    border-radius: 20px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 10px;
+}
+
+
+/* 🔷 Responsivo */
+@media (max-width: 600px) {
+    .qr-seccion h2 {
+        font-size: 18px;
+    }
+}
+
+</style>
+  <body>
+    <div class="qr-invitacion">
+      <header>
+        <h1>¡Nuestra Boda! 💍</h1>
+        <p class="fecha">Edición Especial - 26 de Abril, 2025</p>
+      </header>
+
+      <div class="ring"></div>
+
+      <section class="frase">
+        <p>El amor es la melodía más hermosa que dos almas pueden componer.</p>
+      </section>
+
+      <section class="qr-seccion">
+        <h2>Escanea para ver la invitación completa</h2>
+        <div class="linea"></div>
+        <div class="qr-container">
+          <div id="qrcode"></div>
+        </div>
+      </section>
+
+    <script>
+      window.onload = function () {
+        // Inicialización del QR
+        const qrCode = new QRCodeStyling({
+          width: 200,
+          height: 200,
+          data: "https://invitacion-bodasalamanca.netlify.app/",
+          dotsOptions: {
+            color: "#8D6E63",
+            type: "extra-rounded",
+          },
+          backgroundOptions: {
+            color: "#ffffff",
+          },
+          cornersSquareOptions: {
+            type: "extra-rounded",
+          },
+          cornersDotOptions: {
+            type: "dot",
+          },
+          image: "https://cdn-icons-png.flaticon.com/512/833/833472.png",
+          imageOptions: {
+            crossOrigin: "anonymous",
+            margin: 5,
+          },
+        });
+        qrCode.append(document.getElementById("qrcode"));
+
+        // Función para generar el PDF
+        function descargarPDF() {
+          const { jsPDF } = window.jspdf;
+          const doc = new jsPDF();
+
+          // Captura el contenedor con el QR
+          const invitacion = document.querySelector(".qr-invitacion");
+
+          // Convierte el HTML en imagen (utilizando html2canvas)
+          html2canvas(invitacion).then(function (canvas) {
+            const imgData = canvas.toDataURL("image/png"); // Convierte el canvas en una URL de imagen
+
+            // Añade la imagen al PDF
+            doc.addImage(imgData, "PNG", 10, 10, 180, 250); // Ajusta las dimensiones según lo necesites
+            doc.save("invitacion_boda.pdf"); // Guarda el PDF
+          });
+        }
+
+        // Añadir la función al botón de descarga
+        document.querySelector(".boton").onclick = descargarPDF;
+      };
+    </script>
+  </body>
+</html>
